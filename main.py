@@ -23,9 +23,11 @@ async def webhook(req: Request):
         if text == "/start":
             requests.post(f"{TELEGRAM_URL}/sendMessage", json={
                 "chat_id": chat_id,
-                "text": "¡Hola! Bienvenido a DELIVEROO. ¿Qué se te antoja hoy para disfrutar una comida deliciosa?",
+                "text": "¡Hola! Bienvenido a Restaurant Aguilar. ¿Qué se te antoja hoy para disfrutar una comida deliciosa?",
                 "reply_markup": {
-                    "keyboard": [["Ver Menú"]],
+                    "keyboard": [
+                      [{"text": "Ver Menú"}] 
+                    ],
                     "resize_keyboard": True
                 }
             })
