@@ -55,7 +55,7 @@ async def telegram_webhook(req: Request):
                 "text": "Haz tu pedido ahora con un solo toque 👇",
                 "reply_markup": {
                     "inline_keyboard": [
-                        [{"text": "Abrir Menú 🍽️", "web_app": {"url": "https://tuapp.vercel.app"}}]
+                        [{"text": "Abrir Menú 🍽️", "web_app": {"url": "https://frontend-mini-app-telegram.vercel.app/"}}]
                     ]
                 }
             })
@@ -67,7 +67,7 @@ async def telegram_webhook(req: Request):
                 "text": "🍽️ Abre nuestro menú interactivo 👇",
                 "reply_markup": {
                     "inline_keyboard": [
-                        [{"text": "Abrir Menú 🍽️", "web_app": {"url": "https://tuapp.vercel.app"}}]
+                        [{"text": "Abrir Menú 🍽️", "web_app": {"url": "https://frontend-mini-app-telegram.vercel.app/"}}]
                     ]
                 }
             })
