@@ -40,34 +40,38 @@ async def webhook(req: Request):
     if "message" in data:
         chat_id = data["message"]["chat"]["id"]
         text = data["message"].get("text", "")
-        
-        # Preparamos el payload (el JSON que enviaremos)
-        payload = {"chat_id": chat_id}
 
-        # Lógica IF / ELIF / ELSE para manejar todos los casos
         if text == "/start":
-            payload["text"] = "¡Hola! Bienvenido a Restaurant Aguilar. ¿Qué se te antoja hoy para disfrutar una comida deliciosa?"
-            payload["reply_markup"] = {
-                "keyboard": [
-                    [{"text": "Ver Menú"}]  # Sintaxis JSON correcta
-                ],
-                "resize_keyboard": True
-            }
+            await client.post(f"{TELEGRAM_URL}/sendMessage", json={
+                "chat_id": chat_id,
+                "text": "¡Hola! Bienvenido a Restaurant Aguilar. ¿Qué se te antoja hoy?",
+                "reply_markup": {
+                    "keyboard": [["Ver Menú"]],
+                    "resize_keyboard": True
+                }
+            })
+            return {"ok": True}
 
         elif text == "Ver Menú":
-            # Mostrar categorías
             keyboard = [
                 [{"text": "Pizzas", "callback_data": "cat_pizzas"}],
                 [{"text": "Bebidas", "callback_data": "cat_bebidas"}]
             ]
-            requests.post(f"{TELEGRAM_URL}/sendMessage", json={
+            await client.post(f"{TELEGRAM_URL}/sendMessage", json={
                 "chat_id": chat_id,
                 "text": "Selecciona una categoría:",
                 "reply_markup": {"inline_keyboard": keyboard}
             })
+            return {"ok": True}
 
-       # --- Botones (callback_query) ---
-    if "callback_query" in data:
+        else:
+            await client.post(f"{TELEGRAM_URL}/sendMessage", json={
+                "chat_id": chat_id,
+                "text": f"Recibí tu mensaje: {text}. Usa /start o el botón 'Ver Menú'."
+            })
+            return {"ok": True}
+
+    elif "callback_query" in data:
         query = data["callback_query"]
         chat_id = query["message"]["chat"]["id"]
         data_id = query["data"]
@@ -77,11 +81,12 @@ async def webhook(req: Request):
                 [{"text": "Margarita - $7.50", "callback_data": "prod_margarita"}],
                 [{"text": "Pepperoni - $8.50", "callback_data": "prod_pepperoni"}]
             ]
-            requests.post(f"{TELEGRAM_URL}/sendMessage", json={
+            await client.post(f"{TELEGRAM_URL}/sendMessage", json={
                 "chat_id": chat_id,
                 "text": "Elige tu pizza favorita 🍕",
                 "reply_markup": {"inline_keyboard": keyboard}
             })
+            return {"ok": True}
 
         elif data_id.startswith("prod_"):
             producto = data_id.replace("prod_", "")
@@ -94,30 +99,25 @@ async def webhook(req: Request):
                 [{"text": "Sí, Confirmar", "callback_data": "confirmar"}],
                 [{"text": "No, Modificar", "callback_data": "modificar"}]
             ]
-            requests.post(f"{TELEGRAM_URL}/sendMessage", json={
+            await client.post(f"{TELEGRAM_URL}/sendMessage", json={
                 "chat_id": chat_id,
                 "text": texto,
                 "reply_markup": {"inline_keyboard": keyboard}
             })
+            return {"ok": True}
 
         elif data_id == "confirmar":
-            requests.post(f"{TELEGRAM_URL}/sendMessage", json={
+            await client.post(f"{TELEGRAM_URL}/sendMessage", json={
                 "chat_id": chat_id,
                 "text": "¡Pedido confirmado! 🛵📍"
             })
+            return {"ok": True}
 
         elif data_id == "modificar":
-            requests.post(f"{TELEGRAM_URL}/sendMessage", json={
+            await client.post(f"{TELEGRAM_URL}/sendMessage", json={
                 "chat_id": chat_id,
-                "text": "Perfecto, vuelve a elegir desde el menú "
+                "text": "Perfecto, vuelve a elegir desde el menú 🍽️"
             })
-
-       
-
-        # Enviamos la petición a Telegram de forma ASÍNCRONA
-        try:
-            await client.post(f"{TELEGRAM_URL}/sendMessage", json=payload, timeout=5.0)
-        except httpx.RequestError as e:
-            print(f"Error sending message to chat_id {chat_id}: {e}")
+            return {"ok": True}
 
     return {"ok": True}
