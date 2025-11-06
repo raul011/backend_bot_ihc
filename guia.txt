@@ -1,0 +1,10 @@
+Flujo en Render
+1. 	Subes tu repo a GitHub/GitLab.
+2. 	Conectas Render a tu repo.
+3. 	Render instala dependencias desde .
+4. 	Render ejecuta el comando de inicio ().
+5. 	Te da una URL pública HTTPS (ejemplo: ).
+6. 	Registras esa URL como webhook en Telegram:
+
+
+curl -F "url=https://miapp.onrender.com/webhook" https://api.telegram.org/bot<TU_TOKEN>/setWebhook
