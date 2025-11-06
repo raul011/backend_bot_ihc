@@ -55,12 +55,64 @@ async def webhook(req: Request):
             }
 
         elif text == "Ver Menú":
-            payload["text"] = "¡Perfecto! Aquí tienes nuestro menú:\n- Pizza Margarita\n- Pasta Carbonara\n- Ensalada César"
-            # Aquí podrías añadir otro teclado, por ejemplo
-            # payload["reply_markup"] = { ... }
+            # Mostrar categorías
+            keyboard = [
+                [{"text": "Pizzas", "callback_data": "cat_pizzas"}],
+                [{"text": "Bebidas", "callback_data": "cat_bebidas"}]
+            ]
+            requests.post(f"{TELEGRAM_URL}/sendMessage", json={
+                "chat_id": chat_id,
+                "text": "Selecciona una categoría:",
+                "reply_markup": {"inline_keyboard": keyboard}
+            })
 
-        else:
-            payload["text"] = f"Recibí tu mensaje: {text}. Por favor, usa el botón 'Ver Menú' o /start."
+       # --- Botones (callback_query) ---
+    if "callback_query" in data:
+        query = data["callback_query"]
+        chat_id = query["message"]["chat"]["id"]
+        data_id = query["data"]
+
+        if data_id == "cat_pizzas":
+            keyboard = [
+                [{"text": "Margarita - $7.50", "callback_data": "prod_margarita"}],
+                [{"text": "Pepperoni - $8.50", "callback_data": "prod_pepperoni"}]
+            ]
+            requests.post(f"{TELEGRAM_URL}/sendMessage", json={
+                "chat_id": chat_id,
+                "text": "Elige tu pizza favorita 🍕",
+                "reply_markup": {"inline_keyboard": keyboard}
+            })
+
+        elif data_id.startswith("prod_"):
+            producto = data_id.replace("prod_", "")
+            resumen = {
+                "margarita": "Margarita x1 $7.50",
+                "pepperoni": "Pepperoni x1 $8.50"
+            }
+            texto = f"Resumen de tu pedido:\n{resumen.get(producto)}\n¿Confirmas?"
+            keyboard = [
+                [{"text": "Sí, Confirmar", "callback_data": "confirmar"}],
+                [{"text": "No, Modificar", "callback_data": "modificar"}]
+            ]
+            requests.post(f"{TELEGRAM_URL}/sendMessage", json={
+                "chat_id": chat_id,
+                "text": texto,
+                "reply_markup": {"inline_keyboard": keyboard}
+            })
+
+        elif data_id == "confirmar":
+            requests.post(f"{TELEGRAM_URL}/sendMessage", json={
+                "chat_id": chat_id,
+                "text": "¡Pedido confirmado! 🛵📍"
+            })
+
+        elif data_id == "modificar":
+            requests.post(f"{TELEGRAM_URL}/sendMessage", json={
+                "chat_id": chat_id,
+                "text": "Perfecto, vuelve a elegir desde el menú "
+            })
+
+       
 
         # Enviamos la petición a Telegram de forma ASÍNCRONA
         try:
