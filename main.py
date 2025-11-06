@@ -11,44 +11,22 @@ if not TOKEN:
 TELEGRAM_URL = f"https://api.telegram.org/bot{TOKEN}"
 client = httpx.AsyncClient()
 
-# --- Datos simulados ---
+# --- Menú de productos ---
 MENU = {
-    "margarita": {"nombre": "Pizza Margarita", "precio": 7.5},
-    "pepperoni": {"nombre": "Pizza Pepperoni", "precio": 8.5},
-    "refresco": {"nombre": "Refresco de Cola", "precio": 2.0},
+    "burger": {"nombre": "Burger 🍔", "precio": 4.99},
+    "fries": {"nombre": "Fries 🍟", "precio": 1.49},
+    "hotdog": {"nombre": "Hotdog 🌭", "precio": 3.49},
+    "taco": {"nombre": "Taco 🌮", "precio": 3.99},
+    "pizza": {"nombre": "Pizza 🍕", "precio": 7.99},
+    "donut": {"nombre": "Donut 🍩", "precio": 1.49},
+    "popcorn": {"nombre": "Popcorn 🍿", "precio": 1.99},
+    "soda": {"nombre": "Soda 🥤", "precio": 1.50}
 }
 
-# --- Carritos en memoria (por chat_id) ---
+# --- Carritos en memoria por usuario ---
 CARRITOS = {}
 
-# --- Endpoint para menú (opcional, si quieres consumir desde React) ---
-@app.get("/menu")
-def get_menu():
-    return {"menu": list(MENU.values())}
-
-# --- Endpoint para crear pedido (opcional, si quieres consumir desde React) ---
-@app.post("/pedido")
-async def crear_pedido(req: Request):
-    data = await req.json()
-    chat_id = data.get("chat_id")
-    items = data.get("items", [])
-
-    total = sum(item["precio"] for item in items)
-
-    if chat_id:
-        texto = "¡Excelente! Aquí está el resumen de tu pedido:\n"
-        for item in items:
-            texto += f"- {item['nombre']} ${item['precio']}\n"
-        texto += f"Total: ${total:.2f}"
-
-        await client.post(f"{TELEGRAM_URL}/sendMessage", json={
-            "chat_id": chat_id,
-            "text": texto
-        })
-
-    return {"ok": True, "total": total}
-
-# --- Webhook para Telegram ---
+# --- Webhook principal ---
 @app.post("/webhook")
 async def telegram_webhook(req: Request):
     data = await req.json()
@@ -66,7 +44,7 @@ async def telegram_webhook(req: Request):
                 "caption": (
                     "🍕 *Restaurante Aguilar* 🍕\n\n"
                     "Donde cada comida es una obra de arte 🎨.\n"
-                    "Explora nuestro menú, crea tu propio pedido y pide tus favoritas.\n\n"
+                    "Explora nuestro menú y pide tus favoritas.\n\n"
                     "✨ ¡Todo a un toque de distancia!"
                 ),
                 "parse_mode": "Markdown"
@@ -84,21 +62,7 @@ async def telegram_webhook(req: Request):
             })
 
         elif text.lower() in ["/menu", "/menú"]:
-            # Mostrar menú como texto
-            texto = "🍽️ Nuestro menú:\n"
-            for key, item in MENU.items():
-                texto += f"- {item['nombre']} ${item['precio']}\n"
-
-            await client.post(f"{TELEGRAM_URL}/sendMessage", json={
-                "chat_id": chat_id,
-                "text": texto
-            })
-
-        else:
-            await client.post(f"{TELEGRAM_URL}/sendMessage", json={
-                "chat_id": chat_id,
-                "text": f"Recibí tu mensaje: {text}"
-            })
+            await mostrar_menu(chat_id)
 
     # --- Botones inline (callback_query) ---
     if "callback_query" in data:
@@ -107,16 +71,7 @@ async def telegram_webhook(req: Request):
         data_id = query["data"]
 
         if data_id == "ver_menu":
-            keyboard = [
-                [{"text": f"{MENU['margarita']['nombre']} 🍕 - ${MENU['margarita']['precio']}", "callback_data": "prod_margarita"}],
-                [{"text": f"{MENU['pepperoni']['nombre']} 🍕 - ${MENU['pepperoni']['precio']}", "callback_data": "prod_pepperoni"}],
-                [{"text": f"{MENU['refresco']['nombre']} 🥤 - ${MENU['refresco']['precio']}", "callback_data": "prod_refresco"}]
-            ]
-            await client.post(f"{TELEGRAM_URL}/sendMessage", json={
-                "chat_id": chat_id,
-                "text": "Selecciona tu producto:",
-                "reply_markup": {"inline_keyboard": keyboard}
-            })
+            await mostrar_menu(chat_id)
 
         elif data_id.startswith("prod_"):
             producto = data_id.replace("prod_", "")
@@ -133,48 +88,16 @@ async def telegram_webhook(req: Request):
             if chat_id not in CARRITOS:
                 CARRITOS[chat_id] = []
 
-            # Agregar producto al carrito
+            # Agregar producto
             CARRITOS[chat_id].append(item)
 
-            # Mostrar carrito actual
-            total = sum(p["precio"] for p in CARRITOS[chat_id])
-            texto = "🛒 Tu carrito actual:\n"
-            for p in CARRITOS[chat_id]:
-                texto += f"- {p['nombre']} ${p['precio']}\n"
-            texto += f"\nTotal: ${total:.2f}"
+            await mostrar_carrito(chat_id)
 
-            keyboard = [
-                [{"text": "Agregar más productos ➕", "callback_data": "ver_menu"}],
-                [{"text": "Confirmar pedido ✅", "callback_data": "confirmar"}],
-                [{"text": "Vaciar carrito ❌", "callback_data": "vaciar"}]
-            ]
-
-            await client.post(f"{TELEGRAM_URL}/sendMessage", json={
-                "chat_id": chat_id,
-                "text": texto,
-                "reply_markup": {"inline_keyboard": keyboard}
-            })
+        elif data_id == "ver_carrito":
+            await mostrar_carrito(chat_id)
 
         elif data_id == "confirmar":
-            if chat_id in CARRITOS and CARRITOS[chat_id]:
-                total = sum(p["precio"] for p in CARRITOS[chat_id])
-                texto = "✅ Pedido confirmado:\n"
-                for p in CARRITOS[chat_id]:
-                    texto += f"- {p['nombre']} ${p['precio']}\n"
-                texto += f"\nTotal: ${total:.2f}\n\n¡Tu pedido está en camino! 🛵📍"
-
-                await client.post(f"{TELEGRAM_URL}/sendMessage", json={
-                    "chat_id": chat_id,
-                    "text": texto
-                })
-
-                # Vaciar carrito
-                CARRITOS[chat_id] = []
-            else:
-                await client.post(f"{TELEGRAM_URL}/sendMessage", json={
-                    "chat_id": chat_id,
-                    "text": "Tu carrito está vacío ❌"
-                })
+            await confirmar_pedido(chat_id)
 
         elif data_id == "vaciar":
             CARRITOS[chat_id] = []
@@ -184,3 +107,65 @@ async def telegram_webhook(req: Request):
             })
 
     return {"ok": True}
+
+# --- Funciones auxiliares ---
+async def mostrar_menu(chat_id):
+    keyboard = []
+    for key, item in MENU.items():
+        keyboard.append([{
+            "text": f"{item['nombre']} - ${item['precio']}",
+            "callback_data": f"prod_{key}"
+        }])
+    keyboard.append([{"text": "🛒 Ver Pedido", "callback_data": "ver_carrito"}])
+
+    await client.post(f"{TELEGRAM_URL}/sendMessage", json={
+        "chat_id": chat_id,
+        "text": "🍽️ *Nuestro Menú*:\nSelecciona un producto para agregarlo a tu pedido 👇",
+        "parse_mode": "Markdown",
+        "reply_markup": {"inline_keyboard": keyboard}
+    })
+
+async def mostrar_carrito(chat_id):
+    if chat_id in CARRITOS and CARRITOS[chat_id]:
+        total = sum(p["precio"] for p in CARRITOS[chat_id])
+        texto = "🛒 Tu pedido actual:\n"
+        for p in CARRITOS[chat_id]:
+            texto += f"- {p['nombre']} ${p['precio']}\n"
+        texto += f"\nTotal: ${total:.2f}"
+
+        keyboard = [
+            [{"text": "Confirmar ✅", "callback_data": "confirmar"}],
+            [{"text": "Vaciar ❌", "callback_data": "vaciar"}],
+            [{"text": "Agregar más ➕", "callback_data": "ver_menu"}]
+        ]
+
+        await client.post(f"{TELEGRAM_URL}/sendMessage", json={
+            "chat_id": chat_id,
+            "text": texto,
+            "reply_markup": {"inline_keyboard": keyboard}
+        })
+    else:
+        await client.post(f"{TELEGRAM_URL}/sendMessage", json={
+            "chat_id": chat_id,
+            "text": "Tu carrito está vacío ❌"
+        })
+
+async def confirmar_pedido(chat_id):
+    if chat_id in CARRITOS and CARRITOS[chat_id]:
+        total = sum(p["precio"] for p in CARRITOS[chat_id])
+        texto = "✅ Pedido confirmado:\n"
+        for p in CARRITOS[chat_id]:
+            texto += f"- {p['nombre']} ${p['precio']}\n"
+        texto += f"\nTotal: ${total:.2f}\n\n¡Tu pedido está en camino! 🛵📍"
+
+        await client.post(f"{TELEGRAM_URL}/sendMessage", json={
+            "chat_id": chat_id,
+            "text": texto
+        })
+
+        CARRITOS[chat_id] = []
+    else:
+        await client.post(f"{TELEGRAM_URL}/sendMessage", json={
+            "chat_id": chat_id,
+            "text": "Tu carrito está vacío ❌"
+        })
