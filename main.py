@@ -31,10 +31,6 @@ async def webhook(req: Request):
             })
 
 
-        # Responder al usuario
-        requests.post(f"{TELEGRAM_URL}/sendMessage", json={
-            "chat_id": chat_id,
-            "text": f"Recibí tu mensaje: {text}"
-        })
+        
 
     return {"ok": True}
