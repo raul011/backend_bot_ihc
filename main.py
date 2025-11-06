@@ -1,9 +1,14 @@
 from fastapi import FastAPI, Request
 import requests
+from dotenv import load_dotenv # Importa load_dotenv
+import os # Importa os para acceder a las variables de entorno
 
 app = FastAPI()
 
-TOKEN = "8482705438:AAHkGyw-6g_uGmMdlci9pxGs8juuNjcwcfc"
+# --- Cargar variables de entorno desde .env ---
+load_dotenv()
+# --- Obtener el token de las variables de entorno ---
+TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_URL = f"https://api.telegram.org/bot{TOKEN}"
 
 @app.post("/webhook")
