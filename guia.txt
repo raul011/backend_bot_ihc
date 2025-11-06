@@ -8,3 +8,9 @@ Flujo en Render
 
 
 curl -F "url=https://miapp.onrender.com/webhook" https://api.telegram.org/bot<TU_TOKEN>/setWebhook
+
+curl -F "url=https://backend-bot-ihc-1.onrender.com/webhook" https://api.telegram.org/botTOKEN/setWebhook
+
+DEVUELVE ESTO SI FUE REGISTRADO CORRECTAMENTE:
+{"ok":true,"result":true,"description":"Webhook was set"}
+
