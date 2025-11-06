@@ -41,7 +41,7 @@ async def telegram_webhook(req: Request):
                 "chat_id": chat_id,
                 "photo": "https://cdn.pixabay.com/photo/2015/08/19/02/27/restaurant-895427_1280.png",
                 "caption": (
-                    "🍔 *Durger King* 🍔\n\n"
+                    "Restaurante Aguilar\n\n"
                     "Donde cada comida es una obra de arte 🎨.\n"
                     "Explora nuestro menú y pide tus favoritas.\n\n"
                     "✨ ¡Todo a un toque de distancia!"
