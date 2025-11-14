@@ -2,6 +2,8 @@
 from sqlalchemy.orm import Session
 from app.db.session import SessionLocal
 from app.models.user import User
+from app.models.product import Product
+
 from app.core.security import get_password_hash
 
 def seed_users():
