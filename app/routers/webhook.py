@@ -1,13 +1,11 @@
-from fastapi import FastAPI, Request
+from fastapi import APIRouter, Request
 import os, json
 import httpx
+from app.core.config import settings
 
-app = FastAPI()
+router = APIRouter()
 
-TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-if not TOKEN:
-    raise ValueError("TELEGRAM_BOT_TOKEN no está configurado en las variables de entorno.")
-
+TOKEN = settings.TELEGRAM_BOT_TOKEN
 TELEGRAM_URL = f"https://api.telegram.org/bot{TOKEN}"
 client = httpx.AsyncClient()
 
@@ -26,7 +24,7 @@ MENU = {
 # Carritos en memoria
 CARRITOS = {}
 
-@app.post("/webhook")
+@router.post("/webhook")
 async def telegram_webhook(req: Request):
     data = await req.json()
 
