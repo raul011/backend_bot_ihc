@@ -27,7 +27,7 @@ CARRITOS = {}
 @router.post("/webhook")
 async def telegram_webhook(req: Request):
     data = await req.json()
-
+    print("Webhook recibido:", data)
     # --- Mensajes normales ---
     if "message" in data:
         chat_id = data["message"]["chat"]["id"]
