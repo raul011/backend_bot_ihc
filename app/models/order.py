@@ -1,5 +1,6 @@
 # app/models/order.py
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean, Numeric, Text
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean, Numeric, Text,BigInteger
+
 from sqlalchemy.orm import relationship
 from datetime import datetime
 
@@ -9,7 +10,7 @@ class Order(Base):
     __tablename__ = "orders"
 
     id = Column(Integer, primary_key=True, index=True)
-    telegram_user_id = Column(Integer, nullable=False)
+    telegram_user_id = Column(BigInteger, nullable=False)
     telegram_username = Column(String, nullable=False)
     #user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
