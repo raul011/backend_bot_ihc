@@ -8,6 +8,17 @@ from app.routers import auth,orders,webhook,products
 
 
 app = FastAPI()
+
+# Configuración de CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # en producción mejor usar ["https://tu-frontend.onrender.com"]
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Routers
 app.include_router(auth.router)
 app.include_router(orders.router)
 app.include_router(products.router)
