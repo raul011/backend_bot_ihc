@@ -15,7 +15,8 @@ class Order(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     is_paid = Column(Boolean, default=False)
     total_price = Column(Numeric(12, 2), default=0.00)
-    shipping_address = Column(Text)
+    comentario = Column(Text)
+    direccion_envio = Column(Text)
 
     # relación con items
     items = relationship("OrderItem", back_populates="order")
