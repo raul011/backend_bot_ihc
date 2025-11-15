@@ -9,6 +9,7 @@ class OrderItemCreate(BaseModel):
 class OrderCreate(BaseModel):
     telegram_user_id: int
     telegram_username: Optional[str]
-    shipping_address: str
+    direccion_envio: Optional[str]
+    comentario: Optional[str]
     total_price: float
     items: List[OrderItemCreate]

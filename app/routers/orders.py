@@ -15,8 +15,9 @@ def create_order(order_data: OrderCreate, db: Session = Depends(get_db)):
     order = Order(
         telegram_user_id=order_data.telegram_user_id,
         telegram_username=order_data.telegram_username,
-        shipping_address=order_data.shipping_address,
+        direccion_envio=order_data.shipping_address,
         total_price=order_data.total_price,
+        comentario=order_data.comentario,
         created_at=datetime.utcnow(),
         is_paid=False
     )
