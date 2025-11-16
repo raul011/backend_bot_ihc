@@ -15,3 +15,4 @@ class OrderCreate(BaseModel):
     items: List[OrderItemCreate]
     lat: float | None
     lng: float | None
+    is_paid: bool = False

@@ -19,7 +19,7 @@ def create_order(order_data: OrderCreate, db: Session = Depends(get_db)):
         total_price=order_data.total_price,
         comentario=order_data.comentario,
         created_at=datetime.utcnow(),
-        is_paid=False,
+        is_paid=order_data.is_paid,
         lat=order_data.lat,
         lng=order_data.lng
     )
