@@ -18,6 +18,8 @@ class Order(Base):
     total_price = Column(Numeric(12, 2), default=0.00)
     comentario = Column(Text)
     direccion_envio = Column(Text)
+    lat = Column(Float, nullable=True) 
+    lng = Column(Float, nullable=True)     
 
     # relación con items
     items = relationship("OrderItem", back_populates="order")

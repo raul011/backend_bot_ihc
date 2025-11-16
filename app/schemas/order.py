@@ -13,3 +13,5 @@ class OrderCreate(BaseModel):
     comentario: Optional[str]
     total_price: float
     items: List[OrderItemCreate]
+    lat: float | None
+    lng: float | None

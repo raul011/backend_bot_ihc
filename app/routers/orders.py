@@ -19,7 +19,9 @@ def create_order(order_data: OrderCreate, db: Session = Depends(get_db)):
         total_price=order_data.total_price,
         comentario=order_data.comentario,
         created_at=datetime.utcnow(),
-        is_paid=False
+        is_paid=False,
+        lat=order.lat,
+        lng=order.lng
     )
     db.add(order)
     db.flush()  # obtener order.id antes de commit
