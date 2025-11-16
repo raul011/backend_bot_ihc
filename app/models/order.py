@@ -1,5 +1,5 @@
 # app/models/order.py
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean, Numeric, Text,BigInteger
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean, Numeric, Text,BigInteger,Float
 
 from sqlalchemy.orm import relationship
 from datetime import datetime
