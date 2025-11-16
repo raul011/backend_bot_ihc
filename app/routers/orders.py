@@ -20,8 +20,8 @@ def create_order(order_data: OrderCreate, db: Session = Depends(get_db)):
         comentario=order_data.comentario,
         created_at=datetime.utcnow(),
         is_paid=False,
-        lat=order.lat,
-        lng=order.lng
+        lat=order_data.lat,
+        lng=order_data.lng
     )
     db.add(order)
     db.flush()  # obtener order.id antes de commit
