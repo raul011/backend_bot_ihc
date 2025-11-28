@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import List, Optional
+from app.models.order import OrderStatus
 
 class OrderItemCreate(BaseModel):
     product_id: int
@@ -12,6 +13,8 @@ class OrderCreate(BaseModel):
     direccion_envio: Optional[str]
     comentario: Optional[str]
     total_price: float
+    estado: Optional[OrderStatus]
+    #conductor_id: Optional[int]
     items: List[OrderItemCreate]
     lat: float | None
     lng: float | None

@@ -1,11 +1,15 @@
 # routers/orders.py
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.models.order import Order, OrderItem
+from app.models.order import Order, OrderItem, OrderStatus
 from app.models.product import Product
 from app.schemas.order import OrderCreate
 from app.db.session import get_db
 from datetime import datetime
+from app.services.asignacion_orden import asignar_conductor_automatico
+
+from app.services.websocket_manager import notify_conductor  # tu manejador de WS
+
 
 router = APIRouter()
 
@@ -43,3 +47,27 @@ def create_order(order_data: OrderCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(order)
     return order
+
+
+
+
+@router.post("/orders/{order_id}/dispatch")
+def dispatch_order(order_id: int, db: Session = Depends(get_db)):
+    order = db.query(Order).filter(Order.id == order_id).first()
+    if not order:
+        raise HTTPException(status_code=404, detail="Orden no encontrada")
+    if order.estado != OrderStatus.PENDIENTE:
+        raise HTTPException(status_code=400, detail="La orden ya fue procesada")
+
+    conductor_cercano = asignar_conductor_automatico(db)
+    if not conductor_cercano:
+        raise HTTPException(status_code=404, detail="No hay conductores disponibles")
+
+    # Avisar al conductor por WebSocket
+    notify_conductor(order, conductor_cercano.id)
+
+    return {
+        "message": "Orden enviada al conductor más cercano",
+        "order_id": order.id,
+        "conductor_id": conductor_cercano.id
+    }

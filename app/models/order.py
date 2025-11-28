@@ -1,10 +1,19 @@
 # app/models/order.py
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean, Numeric, Text,BigInteger,Float
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean, Numeric, Text,BigInteger,Float,Enum
 
 from sqlalchemy.orm import relationship
 from datetime import datetime
 
 from app.db.session import Base
+import enum
+
+# 1. Definimos los estados estrictos para evitar errores en el flujo
+class OrderStatus(enum.Enum):
+    PENDIENTE = "PENDIENTE"
+    ASIGNADO = "ASIGNADO"     # <--- NUEVO: Ya tiene conductor, él va al restaurante
+    EN_CAMINO = "EN_CAMINO"           # El conductor activa esto
+    ENTREGADO = "ENTREGADO"           # Fin del flujo
+    CANCELADO = "CANCELADO"
 
 class Order(Base):
     __tablename__ = "orders"
@@ -12,7 +21,6 @@ class Order(Base):
     id = Column(Integer, primary_key=True, index=True)
     telegram_user_id = Column(BigInteger, nullable=False)
     telegram_username = Column(String, nullable=False)
-    #user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     is_paid = Column(Boolean, default=False)
     total_price = Column(Numeric(12, 2), default=0.00)
@@ -20,13 +28,15 @@ class Order(Base):
     direccion_envio = Column(Text)
     lat = Column(Float, nullable=True) 
     lng = Column(Float, nullable=True)     
+    estado = Column(Enum(OrderStatus), default=OrderStatus.PENDIENTE)
+    conductor_id = Column(Integer, ForeignKey("conductores.id"), nullable=True)
 
     # relación con items
     items = relationship("OrderItem", back_populates="order")
-
+    # relación con conductor
+    conductor = relationship("Conductor", back_populates="orders") # Asumiendo que tu clase conductor se llama "Driver"
     def __repr__(self):
-        return f"<Order #{self.id} telegram_user={self.telegram_user_id}>"
-        #return f"<Order #{self.id} user={self.user_id}>"
+        return f"<Order #{self.id} estado={self.estado}>"
 
 
 class OrderItem(Base):

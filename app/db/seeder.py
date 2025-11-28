@@ -27,3 +27,47 @@ def seed_users():
         db.commit()
     finally:
         db.close()
+
+def seed_conductores():
+    db: Session = SessionLocal()
+    try:
+        from app.models.conductor import Conductor
+        # Conductores iniciales
+        initial_conductores = [
+            {
+                "name": "Juan Perez",
+                "email": "juan.perez@example.com",
+                "password": "password123",
+                "latitude": -16.5000,
+                "longitude": -68.1500
+            },
+            {
+                "name": "Maria Lopez",
+                "email": "maria.lopez@example.com",
+                "password": "password123",
+                "latitude": -16.5100,
+                "longitude": -68.1600
+            },
+             {
+                "name": "Carlos Gomez",
+                "email": "carlos.gomez@example.com",
+                "password": "password123",
+                "latitude": -16.4900,
+                "longitude": -68.1400
+            }
+        ]
+
+        for c in initial_conductores:
+            existing = db.query(Conductor).filter(Conductor.email == c["email"]).first()
+            if not existing:
+                conductor = Conductor(
+                    name=c["name"],
+                    email=c["email"],
+                    password=get_password_hash(c["password"]),
+                    latitude=c["latitude"],
+                    longitude=c["longitude"]
+                )
+                db.add(conductor)
+        db.commit()
+    finally:
+        db.close()
