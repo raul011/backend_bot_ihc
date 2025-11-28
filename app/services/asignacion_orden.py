@@ -5,8 +5,8 @@ from app.models.conductor import Conductor, ConductorEstado
 
 # COORDENADAS DE TU LOCAL (Punto de partida del conductor)
 # Reemplaza con las coordenadas reales de tu cocina
-RESTAURANTE_LAT = -17.7833 
-RESTAURANTE_LNG = -63.1821 
+RESTAURANTE_LAT = -17.782227 
+RESTAURANTE_LNG = -63.181715
 
 def calcular_distancia_km(lat1, lon1, lat2, lon2):
     # Fórmula de Haversine
