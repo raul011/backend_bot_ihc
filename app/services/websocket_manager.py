@@ -2,17 +2,20 @@ from fastapi import HTTPException
 from app.routers.websocket import active_connections
 from app.services.asignacion_orden import calcular_distancia_km, RESTAURANTE_LAT, RESTAURANTE_LNG
 
-async def notify_conductor(order, conductor_id: int):
+async def notify_conductor(order, conductor_id: int, conductor=None):
     ws = active_connections.get(conductor_id)
     if not ws:
         raise HTTPException(status_code=404, detail=f"Conductor {conductor_id} no tiene WebSocket activo")
 
     # Calcular distancia entre conductor y restaurante
     distancia_restaurante = None
-    if order.conductor and order.conductor.latitude and order.conductor.longitude:
+    # Usar el conductor pasado como parámetro o intentar obtenerlo de la orden
+    conductor_obj = conductor if conductor else order.conductor
+    
+    if conductor_obj and conductor_obj.latitude and conductor_obj.longitude:
         distancia_restaurante = calcular_distancia_km(
-            order.conductor.latitude, 
-            order.conductor.longitude,
+            conductor_obj.latitude, 
+            conductor_obj.longitude,
             RESTAURANTE_LAT, 
             RESTAURANTE_LNG
         )
