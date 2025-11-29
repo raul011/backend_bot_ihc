@@ -7,26 +7,27 @@ router = APIRouter(prefix="/conductor", tags=["Conductor"])
 
 # 1. Actualizar estado (conectado / desconectado)
 @router.put("/{conductor_id}/estado")
-def actualizar_estado(conductor_id: int, estado: ConductorEstado, db: Session = Depends(get_db)):
+def actualizar_estado(conductor_id: int, payload: EstadoUpdate, db: Session = Depends(get_db)):
     conductor = db.query(Conductor).filter(Conductor.id == conductor_id).first()
     if not conductor:
         raise HTTPException(status_code=404, detail="Conductor no encontrado")
 
-    conductor.estado = estado
+    conductor.estado = payload.estado
     db.commit()
     db.refresh(conductor)
-    return {"message": f"Estado actualizado a {estado}", "conductor_id": conductor.id}
+    return {"message": f"Estado actualizado a {payload.estado}", "conductor_id": conductor.id}
 
 
 # 2. Actualizar ubicación (lat/lng)
 @router.put("/{conductor_id}/ubicacion")
-def actualizar_ubicacion(conductor_id: int, lat: float, lng: float, db: Session = Depends(get_db)):
+def actualizar_ubicacion(conductor_id: int, payload: UbicacionUpdate, db: Session = Depends(get_db)):
     conductor = db.query(Conductor).filter(Conductor.id == conductor_id).first()
     if not conductor:
         raise HTTPException(status_code=404, detail="Conductor no encontrado")
 
-    conductor.latitude = lat
-    conductor.longitude = lng
+    conductor.latitude = payload.lat
+    conductor.longitude = payload.lng
+    conductor.last_update = datetime.utcnow() 
     db.commit()
     db.refresh(conductor)
     return {
