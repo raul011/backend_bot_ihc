@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.db.session import get_db
+from datetime import datetime
 from app.models.conductor import Conductor, ConductorEstado
 from app.schemas.conductor import EstadoUpdate, UbicacionUpdate
 router = APIRouter(prefix="/conductor", tags=["Conductor"])
