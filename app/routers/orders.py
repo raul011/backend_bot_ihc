@@ -64,7 +64,7 @@ def dispatch_order(order_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="No hay conductores disponibles")
 
     # Avisar al conductor por WebSocket
-    notify_conductor(order, conductor_cercano.id)
+    await notify_conductor(order, conductor_cercano.id)
 
     return {
         "message": "Orden enviada al conductor más cercano",
