@@ -52,7 +52,7 @@ def create_order(order_data: OrderCreate, db: Session = Depends(get_db)):
 
 
 @router.post("/orders/{order_id}/dispatch")
-def dispatch_order(order_id: int, db: Session = Depends(get_db)):
+async def dispatch_order(order_id: int, db: Session = Depends(get_db)):
     order = db.query(Order).filter(Order.id == order_id).first()
     if not order:
         raise HTTPException(status_code=404, detail="Orden no encontrada")
