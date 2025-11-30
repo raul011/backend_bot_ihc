@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.models.order import Order, OrderItem, OrderStatus
 from app.models.product import Product
-from app.schemas.order import OrderCreate
+from app.schemas.order import OrderCreate, AcceptOrderPayload
 from app.db.session import get_db
 from datetime import datetime
 from app.services.asignacion_orden import asignar_conductor_automatico
