@@ -19,3 +19,7 @@ class OrderCreate(BaseModel):
     lat: float | None
     lng: float | None
     is_paid: bool = False
+
+
+class AcceptOrderPayload(BaseModel):
+    conductor_id: int

@@ -74,7 +74,8 @@ async def dispatch_order(order_id: int, db: Session = Depends(get_db)):
 
 
 @router.put("/orders/{order_id}/accept")
-async def accept_order(order_id: int, conductor_id: int, db: Session = Depends(get_db)):
+async def accept_order(order_id: int, payload: AcceptOrderPayload, db: Session = Depends(get_db)):
+    conductor_id = payload.conductor_id
     order = db.query(Order).filter(Order.id == order_id).first()
     if not order:
         raise HTTPException(status_code=404, detail="Orden no encontrada")
@@ -92,4 +93,5 @@ async def accept_order(order_id: int, conductor_id: int, db: Session = Depends(g
         "order_id": order.id,
         "conductor_id": conductor_id
     }
+
 
