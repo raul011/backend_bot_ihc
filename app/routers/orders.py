@@ -71,3 +71,25 @@ async def dispatch_order(order_id: int, db: Session = Depends(get_db)):
         "order_id": order.id,
         "conductor_id": conductor_cercano.id
     }
+
+
+@router.put("/orders/{order_id}/accept")
+async def accept_order(order_id: int, conductor_id: int, db: Session = Depends(get_db)):
+    order = db.query(Order).filter(Order.id == order_id).first()
+    if not order:
+        raise HTTPException(status_code=404, detail="Orden no encontrada")
+
+    if order.estado != OrderStatus.PENDIENTE:
+        raise HTTPException(status_code=400, detail="La orden ya fue procesada")
+
+    order.estado = OrderStatus.ASIGNADA
+    order.conductor_id = conductor_id
+    db.commit()
+    db.refresh(order)
+
+    return {
+        "message": "Orden aceptada por el conductor",
+        "order_id": order.id,
+        "conductor_id": conductor_id
+    }
+
