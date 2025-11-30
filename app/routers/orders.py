@@ -83,7 +83,7 @@ async def accept_order(order_id: int, payload: AcceptOrderPayload, db: Session =
     if order.estado != OrderStatus.PENDIENTE:
         raise HTTPException(status_code=400, detail="La orden ya fue procesada")
 
-    order.estado = OrderStatus.ASIGNADA
+    order.estado = OrderStatus.ASIGNADO
     order.conductor_id = conductor_id
     db.commit()
     db.refresh(order)
