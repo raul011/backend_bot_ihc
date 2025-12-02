@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.models.order import Order, OrderItem, OrderStatus
 from app.models.product import Product
-from app.schemas.order import OrderCreate, AcceptOrderPayload,RejectOrderPayload
+from app.schemas.order import OrderCreate, AcceptOrderPayload,RejectOrderPayload, UpdateOrderStatusPayload
 from app.db.session import get_db
 from datetime import datetime
 from app.services.asignacion_orden import asignar_conductor_automatico
@@ -117,4 +117,20 @@ async def reject_order(order_id: int, payload: RejectOrderPayload, db: Session =
         "message": "Orden rechazada, enviada a otro conductor",
         "order_id": order.id,
         "conductor_id": nuevo_conductor.id
+    }
+
+@router.put("/orders/{order_id}/status")
+def update_order_status(order_id: int, payload: UpdateOrderStatusPayload, db: Session = Depends(get_db)):
+    order = db.query(Order).filter(Order.id == order_id).first()
+    if not order:
+        raise HTTPException(status_code=404, detail="Orden no encontrada")
+
+    order.estado = payload.status
+    db.commit()
+    db.refresh(order)
+
+    return {
+        "message": "Estado de la orden actualizado",
+        "order_id": order.id,
+        "new_status": order.estado
     }

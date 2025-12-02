@@ -26,3 +26,6 @@ class AcceptOrderPayload(BaseModel):
 
 class RejectOrderPayload(BaseModel):
     conductor_id: int
+
+class UpdateOrderStatusPayload(BaseModel):
+    status: OrderStatus

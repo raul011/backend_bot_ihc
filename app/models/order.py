@@ -12,7 +12,8 @@ class OrderStatus(enum.Enum):
     PENDIENTE = "PENDIENTE"
     ASIGNADO = "ASIGNADO"     # <--- NUEVO: Ya tiene conductor, él va al restaurante
     EN_CAMINO = "EN_CAMINO"           # El conductor activa esto
-    ENTREGADO = "ENTREGADO"           # Fin del flujo
+    ENTREGA_RECOGIDA = "ENTREGA_RECOGIDA"           
+    ENTREGADO = "ENTREGA_COMPLETADA"           # Fin del flujo
     CANCELADO = "CANCELADO"
 
 class Order(Base):
