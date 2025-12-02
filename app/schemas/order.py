@@ -23,3 +23,6 @@ class OrderCreate(BaseModel):
 
 class AcceptOrderPayload(BaseModel):
     conductor_id: int
+
+class RejectOrderPayload(BaseModel):
+    conductor_id: int
