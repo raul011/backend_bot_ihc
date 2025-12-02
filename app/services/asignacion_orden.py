@@ -19,19 +19,22 @@ def calcular_distancia_km(lat1, lon1, lat2, lon2):
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
     return R * c
 
-def asignar_conductor_automatico(db: Session):
+def asignar_conductor_automatico(db: Session, excluidos: list[int] = None):
     """
     Busca al conductor CONECTADO más cercano al restaurante
     que haya dado señales de vida en los últimos 15 min.
     """
     tiempo_limite = datetime.utcnow() - timedelta(minutes=15)
-    
+    excluidos = excluidos or []  # si es None, lo convertimos en lista vacía
+
     # 1. Filtro inicial en Base de Datos (Rápido)
     candidatos = db.query(Conductor).filter(
         Conductor.estado == ConductorEstado.CONECTADO,
         Conductor.last_update >= tiempo_limite,
         Conductor.latitude.isnot(None),
-        Conductor.longitude.isnot(None)
+        Conductor.longitude.isnot(None),
+        ~Conductor.id.in_(excluidos)   # 👈 excluye los rechazados
+
     ).all()
     
     if not candidatos:
@@ -48,7 +51,7 @@ def asignar_conductor_automatico(db: Session):
         )
         
         if distancia < menor_distancia:
-            menor_distancia = distancia
+            menor_distancia = distancia 
             mejor_conductor = conductor
 
     return mejor_conductor

@@ -94,4 +94,27 @@ async def accept_order(order_id: int, payload: AcceptOrderPayload, db: Session =
         "conductor_id": conductor_id
     }
 
+ @router.put("/{order_id}/reject")
+async def reject_order(order_id: int, payload: RejectOrderPayload, db: Session = Depends(get_db)):
+    conductor_id = payload.conductor_id
 
+    order = db.query(Order).filter(Order.id == order_id).first()
+    if not order:
+        raise HTTPException(status_code=404, detail="Orden no encontrada")
+
+    #order.estado = OrderStatus.RECHAZADA
+    db.commit()
+    db.refresh(order)
+
+    #  ahora excluimos al conductor que rechazó
+    nuevo_conductor = asignar_conductor_automatico(db, excluidos=[conductor_id])
+    if not nuevo_conductor:
+        raise HTTPException(status_code=404, detail="No hay conductores disponibles")
+
+    await notify_conductor(order, nuevo_conductor.id)
+
+    return {
+        "message": "Orden rechazada, enviada a otro conductor",
+        "order_id": order.id,
+        "conductor_id": nuevo_conductor.id
+    }
