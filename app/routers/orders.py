@@ -94,7 +94,7 @@ async def accept_order(order_id: int, payload: AcceptOrderPayload, db: Session =
         "conductor_id": conductor_id
     }
 
- @router.put("/orders/{order_id}/reject")
+@router.put("/orders/{order_id}/reject")
 async def reject_order(order_id: int, payload: RejectOrderPayload, db: Session = Depends(get_db)):
     conductor_id = payload.conductor_id
 
