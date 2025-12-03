@@ -129,8 +129,24 @@ def update_order_status(order_id: int, payload: UpdateOrderStatusPayload, db: Se
     db.commit()
     db.refresh(order)
 
+    # --- Notificar al cliente por Telegram ---
+    mensaje = f"📦 Hola {order.telegram_username}, tu orden #{order.id} cambió de estado a *{order.estado}*"
+    await send_telegram_message(order.telegram_user_id, mensaje)
+
+
     return {
         "message": "Estado de la orden actualizado",
         "order_id": order.id,
         "new_status": order.estado
     }
+
+
+# Función utilitaria para enviar mensajes
+async def send_telegram_message(chat_id: int, text: str):
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(f"{TELEGRAM_URL}/sendMessage", json={
+            "chat_id": chat_id,
+            "text": text,
+            "parse_mode": "Markdown"
+        })
+        print("Respuesta Telegram:", resp.text)
