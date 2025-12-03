@@ -9,6 +9,7 @@ from datetime import datetime
 from app.services.asignacion_orden import asignar_conductor_automatico
 
 from app.services.websocket_manager import notify_conductor  # tu manejador de WS
+import httpx
 
 
 router = APIRouter()
