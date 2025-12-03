@@ -7,12 +7,15 @@ from app.schemas.order import OrderCreate, AcceptOrderPayload,RejectOrderPayload
 from app.db.session import get_db
 from datetime import datetime
 from app.services.asignacion_orden import asignar_conductor_automatico
-
+from app.core.config import settings
 from app.services.websocket_manager import notify_conductor  # tu manejador de WS
 import httpx
 
 
 router = APIRouter()
+
+TOKEN = settings.TELEGRAM_BOT_TOKEN
+TELEGRAM_URL = f"https://api.telegram.org/bot{TOKEN}"
 
 @router.post("/orders")
 def create_order(order_data: OrderCreate, db: Session = Depends(get_db)):
