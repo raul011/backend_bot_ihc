@@ -120,7 +120,7 @@ async def reject_order(order_id: int, payload: RejectOrderPayload, db: Session =
     }
 
 @router.put("/orders/{order_id}/status")
-def update_order_status(order_id: int, payload: UpdateOrderStatusPayload, db: Session = Depends(get_db)):
+async def update_order_status(order_id: int, payload: UpdateOrderStatusPayload, db: Session = Depends(get_db)):
     order = db.query(Order).filter(Order.id == order_id).first()
     if not order:
         raise HTTPException(status_code=404, detail="Orden no encontrada")
