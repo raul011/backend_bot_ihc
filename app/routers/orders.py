@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.models.order import Order, OrderItem, OrderStatus
 from app.models.product import Product
-from app.schemas.order import OrderCreate, AcceptOrderPayload,RejectOrderPayload, UpdateOrderStatusPayload
+from app.schemas.order import OrderCreate, AcceptOrderPayload,RejectOrderPayload, UpdateOrderStatusPayload, NotifyClientPayload
 from app.db.session import get_db
 from datetime import datetime
 from app.services.asignacion_orden import asignar_conductor_automatico
@@ -142,6 +142,23 @@ async def update_order_status(order_id: int, payload: UpdateOrderStatusPayload, 
         "message": "Estado de la orden actualizado",
         "order_id": order.id,
         "new_status": order.estado
+    }
+
+
+
+@router.post("/orders/{order_id}/notify")
+async def notify_client(order_id: int, payload: NotifyClientPayload, db: Session = Depends(get_db)):
+    order = db.query(Order).filter(Order.id == order_id).first()
+    if not order:
+        raise HTTPException(status_code=404, detail="Orden no encontrada")
+
+    # Enviar mensaje al cliente por Telegram
+    await send_telegram_message(order.telegram_user_id, payload.message)
+
+    return {
+        "message": "Mensaje enviado al cliente",
+        "order_id": order.id,
+        "sent_message": payload.message
     }
 
 

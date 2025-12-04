@@ -29,3 +29,6 @@ class RejectOrderPayload(BaseModel):
 
 class UpdateOrderStatusPayload(BaseModel):
     status: OrderStatus
+
+class NotifyClientPayload(BaseModel):
+    message: str
